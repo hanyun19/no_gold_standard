@@ -5,14 +5,20 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 
-```{r pacakges}
+
+
+```r
 library(MASS)
 library(Iso)
+```
+
+```
+## Iso 0.0-17
+```
+
+```r
 library(mvtnorm)
 ```
 ## Model overview
