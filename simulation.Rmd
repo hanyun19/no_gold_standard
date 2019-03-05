@@ -54,10 +54,10 @@ no_gold_standard_simu<- function(eta.r, theta.r, b.0.r, b.1.r, o.r, D){
   iter = 1
   res = c()
   res[iter] = 1000
-  while(res[iter]>0.001){
-  print(iter)
+  while(res[iter]>0.01){
+  # print(iter)
   par_old = c(eta.r, theta.r)
-  print(iter)
+  # print(iter)
   # if(iter == 1){
     pi1.r = exp(as.matrix(D$X)%*%eta.r)/(1+exp(as.matrix(D$X)%*%eta.r))
     pi0.r = 1-pi1.r
@@ -76,8 +76,8 @@ no_gold_standard_simu<- function(eta.r, theta.r, b.0.r, b.1.r, o.r, D){
   # P.r.cat = as.factor(ifelse(P.r>0.5,1,0))
     eta.r<- glm(P.r~.-1, data = D$X,family = binomial)$coef
 
-  sprintf("Estimated eta: %s", eta.r)
-  sprintf("True Estimated eta: %s", eta)
+  # sprintf("Estimated eta: %s", eta.r)
+  # sprintf("True Estimated eta: %s", eta)
 
   mytheta = function(par){
       o = matrix(0,2,2)
@@ -146,21 +146,21 @@ no_gold_standard_simu<- function(eta.r, theta.r, b.0.r, b.1.r, o.r, D){
                     control= list(fnscale=-1))
     theta.r <- theta.opt$par
   theta.conv <- theta.opt$convergence
-  print(ifelse(theta.conv==0,'success','fail'))
-  sprintf("Estimated theta: %s, %s and %s ", theta.r[1],theta.r[2], theta.r[3])
-  sprintf("True theta: %s, %s and %s", O[1,1],O[2,2], rho)
-
-  sprintf("Estimated beta0: %s, %s, %s,%s",
-          theta.r[4],theta.r[5],theta.r[6],theta.r[7])
-
-  sprintf("True beta0: %s, %s, %s,%s",
-         B.0[1],B.0[2],B.0[3],B.0[4])
-
-  sprintf("Estimated beta1: %s, %s, %s,%s ",
-         theta.r[8],theta.r[9],theta.r[10],theta.r[11])
-
-  sprintf("True beta1: %s, %s, %s,%s",
-         B.1[1],B.1[2],B.1[3],B.1[4])
+  # print(ifelse(theta.conv==0,'success','fail'))
+  # sprintf("Estimated theta: %s, %s and %s ", theta.r[1],theta.r[2], theta.r[3])
+  # sprintf("True theta: %s, %s and %s", O[1,1],O[2,2], rho)
+  # 
+  # sprintf("Estimated beta0: %s, %s, %s,%s",
+  #         theta.r[4],theta.r[5],theta.r[6],theta.r[7])
+  # 
+  # sprintf("True beta0: %s, %s, %s,%s",
+  #        B.0[1],B.0[2],B.0[3],B.0[4])
+  # 
+  # sprintf("Estimated beta1: %s, %s, %s,%s ",
+  #        theta.r[8],theta.r[9],theta.r[10],theta.r[11])
+  # 
+  # sprintf("True beta1: %s, %s, %s,%s",
+  #        B.1[1],B.1[2],B.1[3],B.1[4])
 
   b.0.r = matrix(theta.r[4:7],2,2)
   b.1.r = matrix(theta.r[8:11],2,2)
@@ -195,7 +195,7 @@ no_gold_standard_simu<- function(eta.r, theta.r, b.0.r, b.1.r, o.r, D){
   res = append(res, max(abs(par_old-par_new)), after = length(res))
   # res = append(res,max(res2,abs(par_old-par_new)), after = length(res))
   # g.r <- g.r.1
-  print(res[iter])
+  # print(res[iter])
   iter = iter+1
   }
 }
@@ -273,7 +273,7 @@ D$d_prob <- c(d_prob.0, d_prob.1)
 
 * Simulation1:
 ###Initial var1 = var2 = 0.3, and correlation = 0, without transformation
-```{r initial1, echo=FALSE, warning=FALSE, message=FALSE}
+```{r initial1, warning=FALSE, message=FALSE}
 ### True value of covariance matrix
 var <- c(0.3,0.3)
 O = abs(diag(var,2))
@@ -315,7 +315,7 @@ simu1_result = no_gold_standard_simu(eta.r, theta.r, b.0.r, b.1.r, o.r, D)
 ```
 * Simulation2:
 ###Initial var1 = 0.3, var2 = 0.4, and correlation = 0.2, without transformation
-```{r simulation2, echo=FALSE, warning=FALSE, message=FALSE}
+```{r simulation2, warning=FALSE, message=FALSE}
 
 var <- c(0.3,0.4)
 O = abs(diag(var,2))
