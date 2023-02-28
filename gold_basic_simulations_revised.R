@@ -10,7 +10,7 @@ no_gold_standard_simu<- function(eta.r, theta.r, b.0.r, o.r, D, n_class, size, x
   res = c()
   res[iter] = 1000 #
   # D$d_cat = rep(1, 1000)
-  while((res[iter]>0.05)&(iter<100)){
+  while((res[iter]>0.05)&(iter<200)){
     print(iter)
     par_old = c(eta.r, theta.r)
     ## now calculate the disease prevelance
@@ -156,7 +156,7 @@ O[1,2] <- rho*sqrt(var[1])*sqrt(var[2])
 O[2,1] <- O[1,2]
 simu_data <- function(seed=123, size=1000, k_biomarkers=2, m_covariates=2, z_covariates=1, n_class=2,
                       alpha=cbind(c(0.2,0.067)), 
-                      B=matrix(c(c(0.1,0.3,1,2,3),c(0.2,0.4,1,2,1)),nrow=5), eta=0.5,
+                      B=matrix(c(c(0.1,0.3,1,2,3),c(0.2,0.4,1,2,1)),nrow=5),
                      O=as.matrix(cbind(c(0.1, 0.02), c(0.02, 0.5)), nrow=2), x_T_formula='~x1+x1*D', 
                      transform='identity'){
   print(transform)
@@ -253,12 +253,12 @@ B=matrix(c(c(0.1,0.3,1,2,3),c(0.2,0.4,1,2,1)),nrow=5); eta=0.5;
 seed=123; O=as.matrix(cbind(c(0.1, 0.02), c(0.02, 0.5)), nrow=2)
 train = simu_data(seed=123, size=size, k_biomarkers=k_biomarkers, m_covariates=m_covariates, z_covariates=z_covariates, n_class=2,
                   alpha=alpha, #z_covariates + 1
-                  B=B, eta=eta,
+                  B=B, 
                   O=O,
                   x_T_formula, transform='identity')
 
 test = simu_data(seed+1, 2000, k_biomarkers, m_covariates, z_covariates, n_class,
-                  alpha,B, eta, O,x_T_formula)
+                  alpha,B, O,x_T_formula)
 
 ### Initial values:
 eta.r <- cbind(c(0,0))
@@ -271,11 +271,41 @@ o.r[2,1] <- o.r[1,2]
 b.0.r <- matrix(rnorm(nrow(B)*ncol(B)),nrow = nrow(B))
 # b.1.r <- matrix(rnorm(4),nrow = 2)
 theta.r = c(theta.r, c(b.0.r))
-simu1_result = no_gold_standard_simu(eta.r, theta.r, b.0.r, o.r, train,
-                                     n_class=n_class,
-                                     size=size, x_T_formula=x_T_formula)
+simu1_result = {}
+for (boots in c(1,100)){
+  subsample = {}
+  subsample_index = sample(size,size=500)
+  for (item in names(train)){
+    print(item)
+    if(is.null(dim(train[[item]]))){
+      print('yes')
+      subsample[[item]] = train[[item]][subsample_index]
+    }else{
+      subsample[[item]] = as.matrix(train[[item]][subsample_index,])
+      print(head(subsample[[item]]))
+      if(!is.null(names(train[[item]]))){
+        subsample[[item]] = data.frame(subsample[[item]])
+        names(subsample[[item]]) = names(train[[item]])
+      }
+      print(head(subsample[[item]]))
+    }
+  }
+  
+  simu1_result = no_gold_standard_simu(eta.r, theta.r, b.0.r, o.r, subsample,
+                                              n_class=n_class,
+                                              size=500, x_T_formula=x_T_formula)
+  lapply(simu1_result, write, paste0("test_", boots, ".txt"), append=TRUE, ncolumns=1000)
+  fpath = paste0('Documents/no_gold_standard/', "test_", boots, ".txt")
+  sink(fpath)
+  #print my_list to file
+  print(simu1_result)
+  #close external connection to file 
+  sink()
+} 
+
+
 lapply(simu1_result, write, "test.txt", append=TRUE, ncolumns=1000)
-sink('Documents/GitHub/no_gold_standard/simu1_result_revised.txt')
+sink('Documents/no_gold_standard/simu1_result_revised.txt')
 #print my_list to file
 print(simu1_result)
 #close external connection to file 
